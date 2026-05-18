@@ -7,6 +7,9 @@ import os
 import sys
 import time
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+CYPRUS_TZ = ZoneInfo("Asia/Nicosia")
 
 import requests
 import schedule
@@ -101,7 +104,7 @@ def parse_duration(duration_str):
 
 def collect_once():
     """Perform a single data collection."""
-    now = datetime.now()
+    now = datetime.now(CYPRUS_TZ)
     timestamp = now.strftime("%Y-%m-%dT%H:%M:%S")
     date_str = now.strftime("%Y-%m-%d")
     print(f"[{timestamp}] Collecting travel time data...")
@@ -168,13 +171,13 @@ def collect_once():
 
 def is_collection_time():
     """Check if current time is within collection window (7:00-20:00)."""
-    now = datetime.now()
+    now = datetime.now(CYPRUS_TZ)
     return 7 <= now.hour < 20
 
 
 def run_scheduler(days=2):
     """Run the scheduler for the specified number of days."""
-    start_time = datetime.now()
+    start_time = datetime.now(CYPRUS_TZ)
     end_time = start_time + timedelta(days=days)
     print(f"Starting collector. Will run until {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"Collection window: 7:00-20:00, every 30 minutes")
@@ -186,7 +189,7 @@ def run_scheduler(days=2):
     if is_collection_time():
         collect_once()
 
-    while datetime.now() < end_time:
+    while datetime.now(CYPRUS_TZ) < end_time:
         schedule.run_pending()
         time.sleep(30)
 
